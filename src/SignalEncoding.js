@@ -171,7 +171,7 @@ const SignalEncoding = () => {
 
             <div>
                 <h5 style={{ color: 'red', fontSize: '15px', fontWeight: 'normal', margin: '10px 0' }}>
-                    Note: Binary digit label is positioned at the beginning of every transition
+                    Note: The binary label is positioned at the beginning of every transition.
                 </h5>
             </div>
 
