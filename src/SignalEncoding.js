@@ -3,16 +3,16 @@ import { Line } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
 import './SignalEncoding.css';
 
-const nrzlEncoding = (data) => {
-    const signal = [];
-    for (let bit of data) {
-        if (bit === '0') {
-            signal.push(0); 
-        } else {
-            signal.push(1); 
-        }
+const appendFinalState = (signal) => {
+    if (signal.length > 0) {
+        signal.push(signal[signal.length - 1]);
     }
     return signal;
+};
+
+const nrzlEncoding = (data) => {
+    const signal = data.split('').map(bit => (bit === '0' ? 0 : 1));
+    return appendFinalState(signal);
 };
 
 const nrziEncoding = (data) => {
@@ -25,8 +25,7 @@ const nrziEncoding = (data) => {
         }
         signal.push(currentLevel);
     }
-
-    return signal;
+    return appendFinalState(signal);
 };
 
 const bipolarAMIEncoding = (data) => {
@@ -41,8 +40,7 @@ const bipolarAMIEncoding = (data) => {
             signal.push(lastNonZeroLevel);
         }
     }
-
-    return signal;
+    return appendFinalState(signal);
 };
 
 const pseudoternaryEncoding = (data) => {
@@ -57,8 +55,7 @@ const pseudoternaryEncoding = (data) => {
             signal.push(lastNonZeroLevel);
         }
     }
-
-    return signal;
+    return appendFinalState(signal);
 };
 
 const manchesterEncoding = (data) => {
@@ -66,37 +63,32 @@ const manchesterEncoding = (data) => {
 
     for (let bit of data) {
         if (bit === '0') {
-            signal.push(1, 0); // High-to-low for '0'
+            signal.push(1, 0); 
         } else {
-            signal.push(0, 1); // Low-to-high for '1'
+            signal.push(0, 1); 
         }
     }
-
-    return signal;
+    return appendFinalState(signal);
 };
 
 const differentialManchesterEncoding = (data) => {
     const signal = [];
-    let currentLevel = 1; // Start with high
+    let currentLevel = 1; 
 
     for (let bit of data) {
         if (bit === '0') {
-            currentLevel = 1 - currentLevel; // Transition at the beginning
+            currentLevel = 1 - currentLevel; 
             signal.push(currentLevel);
-            currentLevel = 1 - currentLevel; // Transition at the middle
+            currentLevel = 1 - currentLevel; 
             signal.push(currentLevel);
         } else {
-            signal.push(currentLevel); // No transition at the beginning
-            currentLevel = 1 - currentLevel; // Transition at the middle
+            signal.push(currentLevel); 
+            currentLevel = 1 - currentLevel; 
             signal.push(currentLevel);
         }
     }
-
-    return signal;
+    return appendFinalState(signal);
 };
-
-
-
 
 // Main Component
 const SignalEncoding = () => {
@@ -109,13 +101,24 @@ const SignalEncoding = () => {
         manchester: [],
         differentialManchester: [],
     });
+    const [error, setError] = useState('');
 
     const handleInputChange = (e) => {
-        setInputData(e.target.value);
+        const value = e.target.value;
+        if (/^[01]*$/.test(value)) { 
+            setInputData(value);
+            setError(''); 
+        } else {
+            setError('Input must contain only binary digits (0 or 1).');
+        }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (!inputData || /[^01]/.test(inputData)) { 
+            setError('Please enter a valid binary sequence using only 0s and 1s.');
+            return;
+        }
 
         setSignals({
             nrzl: nrzlEncoding(inputData),
@@ -127,12 +130,13 @@ const SignalEncoding = () => {
         });
     };
 
-    
     const createLabels = (data, double = false) => {
+        const labels = data.split('');
+        labels.push(''); 
         if (double) {
-            return data.split('').map(bit => `${bit} `).flatMap(bit => [bit, '']); 
+            return labels.flatMap(bit => [bit, '']);
         }
-        return data.split('');
+        return labels;
     };
 
     const createChartData = (signalData, label, doubleLabels = false) => ({
@@ -141,7 +145,7 @@ const SignalEncoding = () => {
             {
                 label: `${label} Encoding`,
                 data: signalData,
-                borderColor: 'rgba(75, 192, 192, 1)',
+                borderColor: 'rgba(173, 216, 230, 1)',
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 fill: false,
                 stepped: true,
@@ -151,57 +155,64 @@ const SignalEncoding = () => {
 
     return (
         <div className="encoding-container">
-            <h1>Signal Encoding</h1>
+            <h1>Digital Signal Encoding</h1>
             <form onSubmit={handleSubmit} className="form-inline">
-            <div className="form-group">
-                <input
-                    type="text"
-                    value={inputData}
-                    onChange={handleInputChange}
-                    placeholder="Enter binary data (e.g., 1011001)"
-                    required
-                />
-                <button type="submit">Encode</button>
+                <div className="form-group">
+                    <input
+                        type="text"
+                        value={inputData}
+                        onChange={handleInputChange}
+                        placeholder="Enter binary data (e.g., 1011001)"
+                        required
+                    />
+                    <button type="submit">Encode</button>
+                </div>
+            </form>
+
+            <div>
+                <h5 style={{ color: 'red', fontSize: '15px', fontWeight: 'normal', margin: '10px 0' }}>
+                    Note: Binary digit label is positioned at the beginning of every transition
+                </h5>
             </div>
-        </form>
+
 
             <div className="encoding-card">
-                <h2>NRZ-L Encoding</h2>
+                <h2>NRZ-L </h2>
                 {signals.nrzl.length > 0 && (
                     <Line data={createChartData(signals.nrzl, "NRZ-L")} />
                 )}
             </div>
 
             <div className="encoding-card">
-                <h2>NRZ-I Encoding</h2>
+                <h2>NRZ-I </h2>
                 {signals.nrzi.length > 0 && (
                     <Line data={createChartData(signals.nrzi, "NRZ-I")} />
                 )}
             </div>
 
             <div className="encoding-card">
-                <h2>Bipolar AMI Encoding</h2>
+                <h2>Bipolar AMI </h2>
                 {signals.bipolarAMI.length > 0 && (
                     <Line data={createChartData(signals.bipolarAMI, "Bipolar AMI")} />
                 )}
             </div>
 
             <div className="encoding-card">
-                <h2>Pseudoternary Encoding</h2>
+                <h2>Pseudoternary </h2>
                 {signals.pseudoternary.length > 0 && (
                     <Line data={createChartData(signals.pseudoternary, "Pseudoternary")} />
                 )}
             </div>
 
             <div className="encoding-card">
-                <h2>Manchester Encoding</h2>
+                <h2>Manchester </h2>
                 {signals.manchester.length > 0 && (
                     <Line data={createChartData(signals.manchester, "Manchester", true)} />
                 )}
             </div>
 
             <div className="encoding-card">
-                <h2>Differential Manchester Encoding</h2>
+                <h2>Differential Manchester </h2>
                 {signals.differentialManchester.length > 0 && (
                     <Line data={createChartData(signals.differentialManchester, "Differential Manchester", true)} />
                 )}
