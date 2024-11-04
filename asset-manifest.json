@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/QuitonMikkaEllaLabExer9/static/css/main.3b8b291a.css",
-    "main.js": "/QuitonMikkaEllaLabExer9/static/js/main.a83aaab6.js",
+    "main.js": "/QuitonMikkaEllaLabExer9/static/js/main.6a35e05d.js",
     "static/js/453.25c6efd4.chunk.js": "/QuitonMikkaEllaLabExer9/static/js/453.25c6efd4.chunk.js",
     "index.html": "/QuitonMikkaEllaLabExer9/index.html",
     "main.3b8b291a.css.map": "/QuitonMikkaEllaLabExer9/static/css/main.3b8b291a.css.map",
-    "main.a83aaab6.js.map": "/QuitonMikkaEllaLabExer9/static/js/main.a83aaab6.js.map",
+    "main.6a35e05d.js.map": "/QuitonMikkaEllaLabExer9/static/js/main.6a35e05d.js.map",
     "453.25c6efd4.chunk.js.map": "/QuitonMikkaEllaLabExer9/static/js/453.25c6efd4.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.3b8b291a.css",
-    "static/js/main.a83aaab6.js"
+    "static/js/main.6a35e05d.js"
   ]
 }
